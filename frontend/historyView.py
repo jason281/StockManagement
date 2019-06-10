@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import Tkinter as tk
-import ttk
+try:
+    import tkinter as tk
+    from tkinter import ttk
+    import tkinter.messagebox as messagebox
+    from tkinter import font
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import ttk
+    import tkMessageBox as messagebox
+    import tkFont as font
 import tkcalendar
-import tkFont
 from datetime import datetime
 from PIL import Image, ImageGrab
 
@@ -15,7 +22,7 @@ class HistoryView(tk.Frame):
         self.exportdata = {}
         
         self.tree = exportTreeView( self, self.columns )
-        self.tree.pack(fill='x', expand=1)
+        self.tree.pack()
         self.order = ('time', 'asc')
         
         frame = tk.Frame(self)
@@ -23,17 +30,17 @@ class HistoryView(tk.Frame):
         button.pack(side='left', fill='y')
         button = tk.Button( frame, text=u'刪除', command=self.remove )
         button.pack(side='left', fill='y')
-        frame.pack()
+        frame.pack(fill='x')
         
         self.export = exportTreeView( self, self.columns)
-        self.export.pack(fill='x', expand=1)
+        self.export.pack()
         
         frame = tk.Frame(self)
         button = tk.Button( frame, text=u'生成出貨單', command=self.submitexport )
         button.pack(side='left', fill='y')
         button = tk.Button( frame, text=u'返回', command=lambda: self.parent.show_frame("MainPage") )
         button.pack(side='left', fill='y')
-        frame.pack()
+        frame.pack(fill='x')
         
         self.refresh()
         
@@ -58,14 +65,14 @@ class HistoryView(tk.Frame):
         top = tk.Toplevel()
         
         frame = tk.Frame(top)
-        ft = tkFont.Font(family='Fixdsys', size=25)
+        ft = font.Font(family='Fixdsys', size=25)
         tk.Label(frame, text=u'余姚市臻欣塑模廠 (普通合夥)', font=ft).grid(row=0, column=0, columnspan=2)
         
         subframe = tk.Frame(frame)
         tk.Label(subframe, text=u'地址:').pack(fill='y', side='left')
         self.address = tk.Entry(subframe)
-        self.address.pack(fill='y', side='left')
         self.address.insert(0, u'浙江省余姚市羅渡路6號')
+        self.address.pack(fill='x', side='left')
         subframe.grid(row=1, column=0)
         
         subframe = tk.Frame(frame)
@@ -105,7 +112,7 @@ class HistoryView(tk.Frame):
             totalPrice += int(d[u'總價'])
         
         tk.Label(top, text=u'合計: {}'.format(totalPrice)).pack(fill='x')
-        ft = tkFont.Font(family='Fixdsys', size=8)
+        ft = font.Font(family='Fixdsys', size=8)
         tk.Label(top, text=u'注:煩請貴司收到貨後請回簽送貨單，並於貨到三個工作日內驗收完畢，如有任何問題請書面聯繫並確定', font=ft).pack(fill='x')
         
         frame = tk.Frame(top)
@@ -135,7 +142,7 @@ class HistoryView(tk.Frame):
         top = tk.Toplevel()
         
         frame = tk.Frame(top)
-        ft = tkFont.Font(family='Fixdsys', size=25)
+        ft = font.Font(family='Fixdsys', size=25)
         tk.Label(frame, text=u'余姚市甄欣素模廠 (普通合夥)', font=ft).grid(row=0, column=0, columnspan=2)
         
         subframe = tk.Frame(frame)
@@ -170,7 +177,7 @@ class HistoryView(tk.Frame):
         for d in self.exportdata.values():
             totalPrice += d[u'總價']
         tk.Label(top, text=u'合計: {}'.format(totalPrice)).pack(fill='x')
-        ft = tkFont.Font(family='Fixdsys', size=8)
+        ft = font.Font(family='Fixdsys', size=8)
         tk.Label(top, text=u'注:煩請貴司收到貨後請回簽送貨單，並於貨到三個工作日內驗收完畢，如有任何問題請書面聯繫並確定', font=ft).pack(fill='x')
         frame = tk.Frame(top)
         subframe = tk.Frame(frame)
@@ -192,7 +199,8 @@ class HistoryView(tk.Frame):
         
 class exportTreeView(object):
     def __init__(self, master, exportColumns):
-        self.tree = ttk.Treeview( master, columns=exportColumns, show='headings' )
+        frame = tk.Frame( master, width=600, height=200 )
+        self.tree = ttk.Treeview( frame, columns=exportColumns, show='headings' )
         self.columns = exportColumns
         for col in self.columns:
             self.tree.column(col, width=100 if col==u'時間' else 50, anchor='center', stretch=True)
@@ -200,8 +208,10 @@ class exportTreeView(object):
         self.order = u'ID'
         self.desc = False
         
-    def pack(self, *args, **kwargs):
-        return self.tree.pack(*args, **kwargs)
+        self.tree.pack()
+        frame.pack_propagate(0)
+        
+        self.pack = frame.pack
         
     def show(self, data, stock):
         self.tree.delete(*self.tree.get_children())

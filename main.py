@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import Tkinter as tk
-import ttk
+try:
+    import tkinter as tk
+    from tkinter import ttk
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import ttk
+
 from backend.stock import Stock
 import frontend
 import os
@@ -15,13 +20,13 @@ class Application( tk.Tk ):
         
         self.path = path
         if os.path.exists(path):
-            self.stock = pickle.load(open(path, 'rb'))
+            self.stock = pickle.load(open(path, 'rb'), encoding='latin1')
         else:
             self.stock = Stock()
         
         self.default = u'--請選擇--' 
         self.container = tk.Frame(self)
-        self.container.pack(side="top", fill="both", expand=True)
+        self.container.pack(side="top", fill="both")
         
         self.frames = {}
         self.frames['MainPage'] = frontend.MainPage(parent=self)
@@ -38,11 +43,8 @@ class Application( tk.Tk ):
         
         
     def show_frame(self, pageName):
+        self.frames[pageName].tkraise()
         self.refresh()
-        frame = self.frames[pageName]
-        if pageName in ['StockView', 'HistoryView']:
-            frame.refresh()
-        frame.tkraise()
         pickle.dump(self.stock, open(self.path, 'wb'))
         
     def refresh(self):

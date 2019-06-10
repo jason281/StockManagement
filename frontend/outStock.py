@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import Tkinter as tk
-import tkMessageBox as messagebox
+try:
+    import tkinter as tk
+    from tkinter import ttk
+    import tkinter.messagebox as messagebox
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import ttk
+    import tkMessageBox as messagebox
 from .config import *
 import datetime
 import tkcalendar
@@ -24,7 +30,7 @@ class OutStock(tk.Frame):
         label2 = tk.Label( self, text=u'產品數量')
         self.productAmount = tk.Entry( self )
         label2.grid(row=1,column=0)
-        self.productAmount.grid(row=1, column=1, columnspan=2, sticky='nwse')
+        self.productAmount.grid(row=1, column=1, columnspan=2)
         
         self.companyName = tk.StringVar(self)
         self.companyName.set(self.parent.default)
@@ -33,19 +39,19 @@ class OutStock(tk.Frame):
         self.companyNameList = tk.OptionMenu( self, self.companyName, *companyList )
         label3 = tk.Label( self, text=u'公司名稱')
         label3.grid(row=2,column=0)
-        self.companyNameList.grid(row=2,column=1, columnspan=2, sticky='nwse')
+        self.companyNameList.grid(row=2,column=1, columnspan=2)
         
         label4 = tk.Label( self, text=u'產品單價')
         self.unitPrice = tk.DoubleVar(self)
         self.unitPrice.trace('w', self.cal_total)
         label4.grid(row=3,column=0)
-        tk.Entry( self, textvariable=self.unitPrice ).grid(row=3, column=1, columnspan=2, sticky='nwse')
+        tk.Entry( self, textvariable=self.unitPrice ).grid(row=3, column=1, columnspan=2)
         
         label5 = tk.Label( self, text=u'產品總價')
         self.totalPrice = tk.DoubleVar(self)
         self.totalPrice.trace('w', self.cal_unit)
         label5.grid(row=4,column=0)
-        tk.Entry( self, textvariable=self.totalPrice ).grid(row=4, column=1, columnspan=2, sticky='nwse')
+        tk.Entry( self, textvariable=self.totalPrice ).grid(row=4, column=1, columnspan=2)
         
         self.calendar = tkcalendar.DateEntry(self)
         self.calendar.grid(row=5, columnspan=4)

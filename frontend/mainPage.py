@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import Tkinter as tk
+try:
+    import tkinter as tk
+    from tkinter import ttk
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import ttk
 
 class MainPage(tk.Frame):
     def __init__(self, parent):

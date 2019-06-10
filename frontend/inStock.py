@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import Tkinter as tk
-import tkMessageBox as messagebox
+try:
+    import tkinter as tk
+    from tkinter import ttk
+    import tkinter.messagebox as messagebox
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import ttk
+    import tkMessageBox as messagebox
 import datetime
 import tkcalendar
 

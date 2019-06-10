@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-
-import Tkinter as tk
-import ttk
+try:
+    import tkinter as tk
+    from tkinter import ttk
+except ImportError:
+    import Tkinter as tk
+    from Tkinter import ttk
 
 class StockView(tk.Frame):
     def __init__(self, parent):
@@ -9,24 +12,30 @@ class StockView(tk.Frame):
         columns = [u'名稱', u'數量', u'單位', u'圖號']
         self.columns = columns
         
+        frame = tk.Frame( self, width=600, height=200 )
         self.parent = parent
-        tree = ttk.Treeview( self, columns=columns,show='headings' )
+        tree = ttk.Treeview( frame, columns=columns,show='headings' )
         for col in columns:
             tree.column(col, width=100, anchor='center')
             tree.heading(col, text=col)
         
-        tree.pack(fill='x')
+        tree.pack()
+        frame.pack_propagate(0)
+        frame.pack()
         self.tree = tree
         self.order = u'名稱'
         self.desc=False
         
+        frame = tk.Frame( self, width=600, height=200 )
         self.material_col = [u'物料名稱', u'物料編碼', u'數量', u'單位']
-        tree = ttk.Treeview( self, columns=self.material_col,show='headings' )
+        tree = ttk.Treeview( frame, columns=self.material_col,show='headings' )
         for col in self.material_col:
             tree.column(col, width=100, anchor='center')
             tree.heading(col, text=col)
         
-        tree.pack(fill='x')
+        tree.pack()
+        frame.pack_propagate(0)
+        frame.pack()
         self.material_order = u'物料名稱'
         self.material_desc=False
         self.material_tree = tree
