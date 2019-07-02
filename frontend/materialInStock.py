@@ -87,5 +87,6 @@ class MaterialInStock(tk.Frame):
         except ValueError:
             messagebox.showinfo(u'錯誤', u'數量錯誤')
         else:
+            self.parent.stock.saveData()
             self.parent.show_frame("MainPage")
             

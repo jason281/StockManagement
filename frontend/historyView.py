@@ -109,7 +109,10 @@ class HistoryView(tk.Frame):
         
         totalPrice = 0
         for d in self.exportdata.values():
-            totalPrice += int(d[u'總價'])
+            try:
+                totalPrice += int(d[u'總價'])
+            except:
+                pass
         
         tk.Label(top, text=u'合計: {}'.format(totalPrice)).pack(fill='x')
         ft = font.Font(family='Fixdsys', size=8)

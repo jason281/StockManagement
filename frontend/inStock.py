@@ -107,9 +107,14 @@ class InStock(tk.Frame):
         except ValueError:
             messagebox.showinfo(u'錯誤', u'產品數量錯誤')
         else:
+            self.parent.stock.saveData()
             self.parent.show_frame("MainPage")
             
     def refresh_consume(self, event=None, *arg):
+        try:
+            float(self.productAmount.get())
+        except tk.TclError:
+            return
         if self.productName.get() == self.parent.default or self.productName.get() not in self.parent.stock.data:
             return
         for idx, (mat,consume) in enumerate(self.parent.stock.data[self.productName.get()][u'消耗'].items()):

@@ -13,16 +13,13 @@ import os
 import pickle, numbers, tkcalendar
 
 class Application( tk.Tk ):
-    def __init__(self, path='data.pickle'):
+    def __init__(self):
         tk.Tk.__init__(self)
         
         self.maxMaterial_num = 5
         
-        self.path = path
-        if os.path.exists(path):
-            self.stock = pickle.load(open(path, 'rb'), encoding='latin1')
-        else:
-            self.stock = Stock()
+        self.stock = Stock()
+        self.stock.loadData()
         
         self.default = u'--請選擇--' 
         self.container = tk.Frame(self)
@@ -45,7 +42,7 @@ class Application( tk.Tk ):
     def show_frame(self, pageName):
         self.frames[pageName].tkraise()
         self.refresh()
-        pickle.dump(self.stock, open(self.path, 'wb'))
+        #pickle.dump(self.stock, open(self.path, 'wb'))
         
     def refresh(self):
         for pageName in self.frames:
@@ -114,7 +111,7 @@ class Application( tk.Tk ):
             self.frames['OutStock'].setProduct(name)
             self.refresh()
             top.destroy()
-        pickle.dump(self.stock, open(self.path, 'wb'))
+        self.stock.saveData()
             
     def addCompany(self):
         top = tk.Toplevel()
@@ -150,7 +147,7 @@ class Application( tk.Tk ):
             self.refresh()
             self.frames['OutStock'].setCompany(name)
             top.destroy()
-        pickle.dump(self.stock, open(self.path, 'wb'))
+        self.stock.saveData()
     def addMaterial(self):
         top = tk.Toplevel()
         
@@ -197,7 +194,7 @@ class Application( tk.Tk ):
             #self.frames['OutStock'].setProduct(name)
             self.refresh()
             top.destroy()
-        pickle.dump(self.stock, open(self.path, 'wb'))
+        self.stock.saveData()
         
 
 app = Application()        

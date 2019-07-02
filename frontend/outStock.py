@@ -107,13 +107,21 @@ class OutStock(tk.Frame):
         except ValueError:
             messagebox.showinfo(u'錯誤', u'產品數量或價格錯誤')
         else:
+            self.parent.stock.saveData()
             self.parent.show_frame("MainPage")
             
     def cal_total(self, *arg):
-        print(float(self.unitPrice.get())*int( self.productAmount.get() ))
+        try:
+            float(self.unitPrice.get())*int( self.productAmount.get() )
+        except tk.TclError:
+            return 
         self.totalPrice.set(str(float(self.unitPrice.get())*int( self.productAmount.get() )))
         
     def cal_unit(self, *arg):
+        try:
+            float(self.totalPrice.get()) / nt(self.productAmount.get())
+        except tk.TclError:
+            return 
         self.unitPrice.set(str(float(self.totalPrice.get())/int( self.productAmount.get() ) ))
             
     
