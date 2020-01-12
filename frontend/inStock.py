@@ -6,7 +6,7 @@ try:
     import tkinter.messagebox as messagebox
 except ImportError:
     import Tkinter as tk
-    from Tkinter import ttk
+    import ttk
     import tkMessageBox as messagebox
 import datetime
 import tkcalendar

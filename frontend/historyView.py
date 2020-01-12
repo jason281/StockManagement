@@ -7,7 +7,7 @@ try:
     from tkinter import font
 except ImportError:
     import Tkinter as tk
-    from Tkinter import ttk
+    import ttk
     import tkMessageBox as messagebox
     import tkFont as font
 import tkcalendar

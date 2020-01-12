@@ -5,6 +5,10 @@ import os
 import pandas as pd
 from .company import Company
 
+kMaterialFileName = "material.csv"
+kHistoryFileName = "history.csv"
+kProductFileName = "Product.csv"
+
 class Stock:
     def __init__(self):
         self.material = {'':{u'物料名稱':'', u'物料編碼':'', u'數量':0, u'單位':''}}
@@ -15,22 +19,23 @@ class Stock:
         self.companies = {'':None}
 
     def loadData(self):
-        if os.path.exists('材料.csv'):
-            self.material = pd.read_csv('材料.csv', encoding = 'utf-8', index_col = 0).to_dict(orient='index')
-        if os.path.exists('產品.csv'):
-            df = pd.read_csv('產品.csv', encoding = 'utf-8', index_col = 0)
+        if os.path.exists(kMaterialFileName):
+            self.material = pd.read_csv(kMaterialFileName, encoding = 'utf-8', index_col = 0).to_dict(orient='index')
+        if os.path.exists(kProductFileName):
+            df = pd.read_csv(kProductFileName, encoding = 'utf-8', index_col = 0)
             df[u'消耗'] = df[u'消耗'].apply(eval)
             self.data = df.to_dict(orient='index')
-        if os.path.exists('紀錄.csv'):
-            self.history = pd.read_csv('紀錄.csv', encoding = 'utf-8', index_col = 0).fillna('').to_dict(orient='records')
+        if os.path.exists(kHistoryFileName):
+            self.history = pd.read_csv(kHistoryFileName, encoding = 'utf-8', index_col = 0).fillna('').to_dict(orient='records')
             self.history_count = self.history[-1]['ID']
             for idx in range(len(self.history)):
-                self.historymap[self.history[idx]['ID']] = idx
+                self.historymap[str(self.history[idx]['ID'])] = idx
 
     def saveData(self):
-        pd.DataFrame(list(self.material.values()), index=self.material.keys()).to_csv('材料.csv', encoding = 'utf_8_sig')
-        pd.DataFrame(list(self.data.values()), index=self.data.keys()).to_csv('產品.csv', encoding = 'utf_8_sig')
-        pd.DataFrame(self.history).to_csv('紀錄.csv', encoding = 'utf_8_sig')
+        pd.DataFrame(list(self.material.values()), index=self.material.keys()).to_csv(kMaterialFileName, encoding = 'utf_8_sig')
+        pd.DataFrame(list(self.data.values()), index=self.data.keys()).to_csv(kProductFileName, encoding = 'utf_8_sig')
+        pd.DataFrame(self.history).to_csv(kHistoryFileName, encoding = 'utf_8_sig')
+        #pd.DataFrame(self.companies)
     
     def inStock( self, productName, productAmount, time = datetime.datetime.now() ):
         if productName not in self.data:
@@ -61,6 +66,7 @@ class Stock:
         self.companies[companyName] = Company(companyName)
         
     def historyquery(self, id):
+        #print(self.historymap)
         return self.history[self.historymap[id]]
     
     def removeProduct(self, productName):

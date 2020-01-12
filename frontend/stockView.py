@@ -4,7 +4,7 @@ try:
     from tkinter import ttk
 except ImportError:
     import Tkinter as tk
-    from Tkinter import ttk
+    import ttk
 
 class StockView(tk.Frame):
     def __init__(self, parent):

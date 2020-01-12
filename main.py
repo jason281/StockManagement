@@ -5,7 +5,7 @@ try:
     from tkinter import ttk
 except ImportError:
     import Tkinter as tk
-    from Tkinter import ttk
+    import ttk
 
 from backend.stock import Stock
 import frontend
