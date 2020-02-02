@@ -26,7 +26,7 @@ class InStock(tk.Frame):
         label1 = tk.Label( self, text=u'產品名稱')
         label1.grid(row=0,column=0)
 
-        companyList = [self.parent.default] + list(self.parent.stock.data.index.get_level_values(0))
+        companyList = [self.parent.default] + list(set(self.parent.stock.data.index.get_level_values(0)))
         self.companyNameList = tk.OptionMenu( self, self.companyName, *companyList, command=self.refresh )
         self.companyNameList.bind('<Button-1>', self.refresh)
         self.companyNameList.grid(row=0,column=1)
@@ -90,12 +90,16 @@ class InStock(tk.Frame):
         self.productName.set(product)
         
     def refresh(self, *arg):
+        companyList = [self.parent.default] + list(set(self.parent.stock.data.index.get_level_values(0)))
+        self.companyNameList.destroy()
+        self.companyNameList = tk.OptionMenu( self, self.companyName, *companyList, command=self.refresh )
+        self.companyNameList.grid(row=0,column=1)
         if self.parent.stock.data.index.get_level_values(0).isin([self.companyName.get()]).any():
             productList = sorted(list(self.parent.stock.data.loc[self.companyName.get()].index))
         else:
             productList = [self.parent.default]
         self.productNameList.destroy()
-        self.productNameList = tk.OptionMenu( self, self.productName, *productList )
+        self.productNameList = tk.OptionMenu( self, self.productName, *productList, command=self.refresh )
         self.productNameList.grid(row=0,column=2)
         name = self.productName.get()
         self.refresh_consume()
