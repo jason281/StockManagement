@@ -19,23 +19,37 @@ class InStock(tk.Frame):
         
         self.productName = tk.StringVar(self)
         self.productName.set(self.parent.default)
-        
-        productList = list(self.parent.stock.data.keys())
-        self.productNameList = tk.OptionMenu( self, self.productName, *productList, command=self.refresh )
-        self.productNameList.bind('<Button-1>', self.refresh)
+        self.companyName = tk.StringVar(self)
+        self.companyName.set(self.parent.default)
+
+        # ==================row0=====================
         label1 = tk.Label( self, text=u'產品名稱')
         label1.grid(row=0,column=0)
-        self.productNameList.grid(row=0,column=1)
+
+        companyList = [self.parent.default] + list(self.parent.stock.data.index.get_level_values(0))
+        self.companyNameList = tk.OptionMenu( self, self.companyName, *companyList, command=self.refresh )
+        self.companyNameList.bind('<Button-1>', self.refresh)
+        self.companyNameList.grid(row=0,column=1)
         
+        productList = [self.parent.default]
+        self.productNameList = tk.OptionMenu( self, self.productName, *productList, command=self.refresh )
+        self.productNameList.bind('<Button-1>', self.refresh)
+        self.productNameList.grid(row=0,column=2)
+
+        
+        # ==================row1=====================
         label2 = tk.Label( self, text=u'產品數量')
+        label2.grid(row=1,column=0)
+
         self.productAmount = tk.DoubleVar(self)
         self.productAmount.set(0)
         self.productAmount.trace('w', self.refresh_consume)
-        label2.grid(row=1,column=0)
         tk.Entry(self, textvariable=self.productAmount).grid(row=1, column=1)
+
         self.unit = tk.StringVar()
         tk.Label(self, textvariable=self.unit).grid(row=1, column=2)
         
+        # ==================row2=====================
         self.material_consume = [None]*self.parent.maxMaterial_num
         self.actual_consume = [None]*self.parent.maxMaterial_num
         self.unit_consume = [None]*self.parent.maxMaterial_num
@@ -58,9 +72,6 @@ class InStock(tk.Frame):
             
             subframe.grid(row=i+2, column=0, columnspan=4)
         
-        #row = 2
-        #for consume in self.parent.stock.data[
-        
         self.calendar = tkcalendar.DateEntry(self)
         self.calendar.grid(row=2+self.parent.maxMaterial_num, columnspan=4)
     
@@ -73,16 +84,19 @@ class InStock(tk.Frame):
         button2 = tk.Button( self, text=u'返回', command=lambda: self.parent.show_frame("MainPage") )
         button2.grid(row=4+self.parent.maxMaterial_num, column=2, columnspan=2)
         button3 = tk.Button( self, text=u'新增產品', command=lambda: self.parent.addProduct() )
-        button3.grid(row=0, column=2)
+        button3.grid(row=0, column=3)
         
     def setProduct(self, product):
         self.productName.set(product)
         
     def refresh(self, *arg):
-        productList = sorted(list(self.parent.stock.data.keys()))
+        if self.parent.stock.data.index.get_level_values(0).isin([self.companyName.get()]).any():
+            productList = sorted(list(self.parent.stock.data.loc[self.companyName.get()].index))
+        else:
+            productList = [self.parent.default]
         self.productNameList.destroy()
         self.productNameList = tk.OptionMenu( self, self.productName, *productList )
-        self.productNameList.grid(row=0,column=1)
+        self.productNameList.grid(row=0,column=2)
         name = self.productName.get()
         self.refresh_consume()
         if name in self.parent.stock.data:
@@ -93,13 +107,21 @@ class InStock(tk.Frame):
             stock = self.parent.stock
             
             name = self.productName.get()
+            index = (self.companyName.get(), self.productName.get())
             assert name != self.parent.default
             amount = int( self.productAmount.get() )
-            for idx, (mat,consume) in enumerate(self.parent.stock.data[self.productName.get()][u'消耗'].items()):
+            for idx, string in enumerate(self.parent.stock.data.loc[index].iloc[-5:]):
+                if string == '':
+                    continue
+                print('string: ', string)
+                mat, _ = string.split(',')
                 assert self.parent.stock.material[mat][u'數量'] >= self.actual_consume[idx].get()
             
-            stock.inStock( name, amount, self.calendar.get_date() )
-            for idx, (mat,consume) in enumerate(self.parent.stock.data[self.productName.get()][u'消耗'].items()):
+            stock.inStock( name, self.companyName.get(), amount, self.calendar.get_date() )
+            for idx, string in enumerate(self.parent.stock.data.loc[index].iloc[-5:]):
+                if string == '':
+                    continue
+                mat, _ = string.split(',')
                 self.parent.stock.material[mat][u'數量'] -= self.actual_consume[idx].get()
                 
         except AssertionError:

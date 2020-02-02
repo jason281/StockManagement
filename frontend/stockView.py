@@ -60,12 +60,14 @@ class StockView(tk.Frame):
         self.tree.delete(*self.tree.get_children())
         
         data = self.parent.stock.data
-        sorted_data = sorted(data.keys(), key=lambda x:data[x][self.order], reverse=self.desc)
-        
-        for name in sorted_data:
+        #sorted_data = sorted(data.keys(), key=lambda x:data[x][self.order], reverse=self.desc)
+        for idx, row in data.sort_values(by=self.order, axis='index', ascending=self.desc).iterrows():
             d = []
             for col in self.columns:
-                d.append(data[name][col])
+                if col == u'名稱':
+                    d.append(idx[1])
+                else:
+                    d.append(row[col])
             self.tree.insert('', 'end', values=d)
             
         self.material_tree.delete(*self.material_tree.get_children())

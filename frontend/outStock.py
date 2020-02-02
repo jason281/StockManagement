@@ -20,26 +20,25 @@ class OutStock(tk.Frame):
         
         self.productName = tk.StringVar(self)
         self.productName.set(self.parent.default)
+        self.companyName = tk.StringVar(self)
+        self.companyName.set(self.parent.default)
+        
+        companyList = [self.parent.default] + list(self.parent.stock.data.index.get_level_values(0))
+        self.companyNameList = tk.OptionMenu( self, self.companyName, *companyList )
+        self.companyNameList.bind('<Button-1>', self.refresh)
+        self.companyNameList.grid(row=0,column=1)
         
         productList = list(self.parent.stock.data.keys())
         self.productNameList = tk.OptionMenu( self, self.productName, *productList )
         label1 = tk.Label( self, text=u'產品名稱')
         label1.grid(row=0,column=0)
-        self.productNameList.grid(row=0,column=1, columnspan=2)
+        self.productNameList.grid(row=0,column=2)
         
         label2 = tk.Label( self, text=u'產品數量')
         self.productAmount = tk.Entry( self )
         label2.grid(row=1,column=0)
         self.productAmount.grid(row=1, column=1, columnspan=2)
         
-        self.companyName = tk.StringVar(self)
-        self.companyName.set(self.parent.default)
-        
-        companyList = list(self.parent.stock.companies.keys())
-        self.companyNameList = tk.OptionMenu( self, self.companyName, *companyList )
-        label3 = tk.Label( self, text=u'公司名稱')
-        label3.grid(row=2,column=0)
-        self.companyNameList.grid(row=2,column=1, columnspan=2)
         
         label4 = tk.Label( self, text=u'產品單價')
         self.unitPrice = tk.DoubleVar(self)
@@ -66,28 +65,26 @@ class OutStock(tk.Frame):
         button2.grid(row=7, column=2, columnspan=2)
         button3 = tk.Button( self, text=u'新增產品', command=lambda: self.parent.addProduct() )
         button3.grid(row=0, column=4)
-        button4 = tk.Button( self, text=u'新增公司', command=lambda: self.parent.addCompany() )
-        button4.grid(row=2, column=4)
         
     def setProduct(self, product):
         self.productName.set(product)
     def setCompany(self, company):
         self.companyName.set(company)
         
-    def refresh(self):
-        productList = sorted(list(self.parent.stock.data.keys()))
+    def refresh(self, *arg):
+        if self.parent.stock.data.index.get_level_values(0).isin([self.companyName.get()]).any():
+            productList = sorted(list(self.parent.stock.data.loc[self.companyName.get()].index))
+        else:
+            productList = [self.parent.default]
         self.productNameList.destroy()
         self.productNameList = tk.OptionMenu( self, self.productName, *productList )
-        self.productNameList.grid(row=0,column=1)
-        
-        companyList = sorted(list(self.parent.stock.companies.keys()))
-        self.companyNameList.destroy()
-        self.companyNameList = tk.OptionMenu( self, self.companyName, *companyList )
-        self.companyNameList.grid(row=2,column=1)
+        self.productNameList.grid(row=0,column=2)
+        # name = self.productName.get()
+        # if name in self.parent.stock.data:
+        #     self.unit.set(self.parent.stock.data[name][u'單位'])self.companyName, *companyList )
 
     def submit(self):
         try:
-            
             stock = self.parent.stock
             
             name = self.productName.get()

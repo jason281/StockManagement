@@ -219,7 +219,6 @@ class exportTreeView(object):
     def show(self, data, stock):
         self.tree.delete(*self.tree.get_children())
         sorted_data = sorted(data, key=lambda x:x[self.order], reverse=self.desc)
-        
         for d in sorted_data:
             v = []
             for col in self.columns:
@@ -227,7 +226,7 @@ class exportTreeView(object):
                     if u'物料' in d[u'操作']:
                         v.append('' if col == u'圖號' else stock.material[d[u'產品名稱']][col])
                     else:
-                        v.append(stock.data[d[u'產品名稱']][col])
+                        v.append(stock.data.loc[(d[u'公司名稱'], d[u'產品名稱'])][col])
                 else:
                     v.append(d[col])
             self.tree.insert('', 'end', values=v)

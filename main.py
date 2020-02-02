@@ -10,6 +10,7 @@ except ImportError:
 from backend.stock import Stock
 import frontend
 import os
+import pandas as pd
 import pickle, numbers, tkcalendar
 
 class Application( tk.Tk ):
@@ -68,6 +69,10 @@ class Application( tk.Tk ):
         label.grid(row=2, column=0)
         scriptNumber.grid(row=2, column=1)
         
+        label = tk.Label( top, text=u'公司')
+        companyName = tk.Entry(top)
+        label.grid(row=3, column=0)
+        companyName.grid(row=3, column=1)
         
         self.material_var = [None]*self.maxMaterial_num
         self.portion_var = [None]*self.maxMaterial_num
@@ -80,35 +85,42 @@ class Application( tk.Tk ):
             self.portion_var[i] = tk.DoubleVar(self)
             self.portion_var[i].set(0)
             
-            label.grid(row=i+3, column=0)
-            menu.grid(row=i+3,column=1)
-            tk.Entry(top, textvariable=self.portion_var[i]).grid(row=i+3, column=2)
+            label.grid(row=i+4, column=0)
+            menu.grid(row=i+4,column=1)
+            tk.Entry(top, textvariable=self.portion_var[i]).grid(row=i+4, column=2)
         
         self.addProductWindow = top
         self.addProductName = name
         self.addProductUnit = unit
+        self.addProductCompany = companyName
         self.addProductSN = scriptNumber
         
         button = tk.Button( top, text=u'提交', command=self.submitProduct )
-        button.grid(row=3+self.maxMaterial_num, column=0)
+        button.grid(row=4+self.maxMaterial_num, column=0)
         button2 = tk.Button( top, text=u'返回', command=top.destroy )
-        button2.grid(row=3+self.maxMaterial_num, column=1)
+        button2.grid(row=4+self.maxMaterial_num, column=1)
         
         top.bind('<Return>', self.submitProduct )
         top.mainloop()
         
     def submitProduct(self, event=None):
         name = self.addProductName.get()
+        company = self.addProductCompany.get()
         top = self.addProductWindow
         
-        if name in self.stock.data:
+        if self.stock.data.index.isin([(company, name)]).any():
             messagebox.showinfo(u'錯誤', u'該產品已存在')
         else:
-            self.stock.data[name] = {u'名稱':name, u'數量':0, u'單位':self.addProductUnit.get(), u'圖號':self.addProductSN.get(), u'消耗':{self.material_var[i].get():self.portion_var[i].get() for i in range(self.maxMaterial_num) if self.material_var[i].get() != self.default}}
-            if '' in self.stock.data:
-                self.stock.removeProduct('')
+            material = [self.material_var[i].get() + ', {}'.format(self.portion_var[i].get()) for i in range(self.maxMaterial_num)]
+            values = [0, self.addProductUnit.get(), self.addProductSN.get()] + map(lambda x:('' if x.split(',')[0] == self.default else x), material)
+            index = pd.MultiIndex.from_tuples([(company, name)])
+            new_row = pd.DataFrame([values], columns=self.stock.data.columns, index=index)
+            self.stock.data = self.stock.data.append(new_row)
+            #self.stock.data[name] = {u'名稱':name, u'數量':0, u'單位':self.addProductUnit.get(), u'圖號':self.addProductSN.get(), u'消耗':{self.material_var[i].get():self.portion_var[i].get() for i in range(self.maxMaterial_num) if self.material_var[i].get() != self.default}}
             self.frames['InStock'].setProduct(name)
+            self.frames['InStock'].companyName.set(company)
             self.frames['OutStock'].setProduct(name)
+            self.frames['OutStock'].companyName.set(company)
             self.refresh()
             top.destroy()
         self.stock.saveData()
